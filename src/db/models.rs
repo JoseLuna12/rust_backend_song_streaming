@@ -1,6 +1,12 @@
 use serde::Serialize;
 
 #[derive(Serialize)]
+pub struct ErrorResponse {
+    pub message: String,
+    pub code: String,
+}
+
+#[derive(Serialize)]
 pub struct Music {
     pub id: String,
     pub name: String,
@@ -19,7 +25,7 @@ impl Music {
     ) -> Self {
         let current_image = match image {
             Some(img) => img,
-            None => "/images/default_image.jpeg".to_owned(),
+            None => "images/default_image.jpeg".to_owned(),
         };
 
         Music {

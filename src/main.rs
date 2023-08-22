@@ -1,6 +1,9 @@
+use actix_files::Files;
 // use actix_files::Files;
 use actix_web::{get, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
 use db::mockdb::InitApp;
+
+use crate::db::models::ErrorResponse;
 mod db;
 
 #[get("/")]
@@ -16,7 +19,13 @@ async fn get_user(username: web::Path<String>) -> HttpResponse {
 
     match user {
         Some(u) => HttpResponse::Ok().json(u),
-        None => HttpResponse::NotFound().body("not found"),
+        None => {
+            let error_msg = ErrorResponse {
+                code: "404".to_owned(),
+                message: format!("User: {} not found", { username.to_string() }),
+            };
+            HttpResponse::Forbidden().json(error_msg)
+        }
     }
 }
 
@@ -71,6 +80,7 @@ fn init_app_data() -> InitApp<'static> {
 async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         App::new()
+            .service(Files::new("/static", ".").show_files_listing())
             .service(hello)
             .service(get_songs)
             .service(get_song)
